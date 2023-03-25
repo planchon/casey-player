@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-    title: "CaseyNeistat binge watching tool",
+    title: "Casey N. Binge Watching Tool",
     description: "Binge watch casey neistat without loosing where you were",
 };
 

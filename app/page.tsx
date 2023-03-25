@@ -10,8 +10,20 @@ const inter = Inter({ subsets: ["latin"] });
 const WATCH_VIDEOS_LS = "watchVideos";
 
 export default function Home() {
+    const [videoIndex, setVideoIndex] = useState(0);
+    const [watchVideos, setWatchVideos] = useState([
+        { id: cn_video[0].id, date: new Date() },
+    ]);
+    const videoContainerRef = useRef(null);
+
+    const [width, setWidth] = useState(600);
+
+    const refs = cn_video.reduce((acc, value) => {
+        acc[value.id] = createRef();
+        return acc;
+    }, {});
+
     const getLastVideos = () => {
-        if (typeof window !== "undefined") return [];
         return JSON.parse(localStorage.getItem(WATCH_VIDEOS_LS));
     };
 
@@ -27,17 +39,6 @@ export default function Home() {
         return index;
     };
 
-    const [videoIndex, setVideoIndex] = useState(getlastVideoIndex());
-    const [watchVideos, setWatchVideos] = useState(getLastVideos() || []);
-    const videoContainerRef = useRef(null);
-
-    const [width, setWidth] = useState(600);
-
-    const refs = cn_video.reduce((acc, value) => {
-        acc[value.id] = createRef();
-        return acc;
-    }, {});
-
     const setCurrentVideo = (id) => {
         setVideoIndex(id);
         setLastVideoWatch(cn_video[id].id);
@@ -51,12 +52,13 @@ export default function Home() {
         });
 
     const setLastVideoWatch = (videoId: string) => {
-        let data = getLastVideos() || [
-            { id: cn_video[0].id, date: new Date() },
-        ];
+        let data = getLastVideos() || [];
         data = [...data, { id: videoId, date: new Date() }];
         localStorage.setItem(WATCH_VIDEOS_LS, JSON.stringify(data));
-        setWatchVideos(data);
+        setWatchVideos((dataTmp) => [
+            ...dataTmp,
+            { id: videoId, date: new Date() },
+        ]);
     };
 
     const getVideoID = () => {
@@ -69,6 +71,11 @@ export default function Home() {
     };
 
     useEffect(() => {
+        setVideoIndex(getlastVideoIndex());
+        setWatchVideos([
+            ...(getLastVideos() || []),
+            { id: cn_video[0].id, date: new Date() },
+        ]);
         if (window && window.innerHeight) {
             setWidth(window.innerHeight);
         }

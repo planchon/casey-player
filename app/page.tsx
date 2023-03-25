@@ -1,91 +1,120 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from './page.module.css'
+"use client";
 
-const inter = Inter({ subsets: ['latin'] })
+import { Inter } from "next/font/google";
+import { default as cn_video } from "./videos";
+import YouTube, { YouTubeProps } from "react-youtube";
+import { createRef, useEffect, useRef, useState } from "react";
+
+const inter = Inter({ subsets: ["latin"] });
+
+const LOCAL_STORAGE_KEY = "lastVideoWatch";
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    const [videoIndex, setVideoIndex] = useState(50);
+    const videoContainerRef = useRef(null);
+    const refs = cn_video.reduce((acc, value) => {
+        acc[value.id] = createRef();
+        return acc;
+    }, {});
+
+    const setCurrentVideo = (id) => {
+        console.log(id);
+        setVideoIndex(id);
+        setLastVideoWatch(id);
+        scrollTo(cn_video[id].id);
+    };
+
+    const scrollTo = (id) =>
+        refs[id].current.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+
+    const setLastVideoWatch = (index: number) => {
+        localStorage.setItem(LOCAL_STORAGE_KEY, index.toString());
+    };
+
+    const getVideoID = () => {
+        let video = cn_video[videoIndex];
+        return video.i;
+    };
+
+    const onEnd: YouTubeProps["onEnd"] = (event) => {
+        setCurrentVideo(videoIndex + 1);
+    };
+
+    useEffect(() => {
+        let data = localStorage.getItem(LOCAL_STORAGE_KEY);
+        setVideoIndex(parseInt(data || "100"));
+        scrollTo(cn_video[videoIndex].id);
+    }, [refs]);
+
+    return (
+        <div className="flex flex-row">
+            <div ref={videoContainerRef} className="basis-3/4">
+                {videoContainerRef && (
+                    <YouTube
+                        videoId={getVideoID()}
+                        opts={{
+                            height: window.innerHeight,
+                            width: "100%",
+                            playerVars: {
+                                autoplay: 1,
+                            },
+                        }}
+                        onEnd={onEnd}
+                    />
+                )}
+            </div>
+            <div className="flex flex-col basis-1/4 w-full">
+                <div className="w-full">
+                    <div className="flex items-center justify-center py-2 font-bold border-b">
+                        Casey Neight Watcher
+                    </div>
+                    <div className="border-b">
+                        <div
+                            className="w-full bg-blue-100"
+                            style={{
+                                height: 5,
+                                width: `${Math.floor(
+                                    (videoIndex * 100) / cn_video.length
+                                )}%`,
+                            }}
+                        />
+                    </div>
+                </div>
+                <div
+                    className="overflow-y-scroll"
+                    style={{
+                        height: "calc(100vh - 80px)",
+                    }}
+                >
+                    {cn_video.map((v, i) => {
+                        return (
+                            <div
+                                className={`flex flex-row h-15 items-center gap-3 border-b cursor-pointer ${
+                                    i === videoIndex ? "bg-blue-200" : ""
+                                }`}
+                                ref={refs[v.id]}
+                                onClick={() => setCurrentVideo(i)}
+                            >
+                                <img
+                                    src={`https://i.ytimg.com/vi/${v.i}/mqdefault.jpg`}
+                                    width={"30%"}
+                                />
+                                <div className="flex grow flex-col items-start overflow-y-hidden">
+                                    <p>{v.t}</p>
+                                    <p>{v.id.split("-")[0]}</p>
+                                </div>
+                                <div className="pr-1">{i + 1}</div>
+                            </div>
+                        );
+                    })}
+                </div>
+                <div className="py-1 border-t justify-center flex">
+                    made by paul
+                </div>
+            </div>
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+    );
 }

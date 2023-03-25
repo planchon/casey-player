@@ -7,21 +7,39 @@ import { createRef, useEffect, useRef, useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const LOCAL_STORAGE_KEY = "lastVideoWatch";
+const WATCH_VIDEOS_LS = "watchVideos";
 
 export default function Home() {
-    const [videoIndex, setVideoIndex] = useState(0);
+    const getLastVideos = () => {
+        return JSON.parse(localStorage.getItem(WATCH_VIDEOS_LS));
+    };
+
+    const getlastVideoIndex = () => {
+        const data = getLastVideos();
+        if (!data) {
+            return 0;
+        }
+        const video = data.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        )[0];
+        const index = cn_video.findIndex((v) => v.id === video.id);
+        return index;
+    };
+
+    const [videoIndex, setVideoIndex] = useState(getlastVideoIndex());
+    const [watchVideos, setWatchVideos] = useState(getLastVideos() || []);
     const videoContainerRef = useRef(null);
+
+    const [width, setWidth] = useState(600);
+
     const refs = cn_video.reduce((acc, value) => {
         acc[value.id] = createRef();
         return acc;
     }, {});
-    const [width, setWidth] = useState(600);
 
     const setCurrentVideo = (id) => {
-        console.log(id);
         setVideoIndex(id);
-        setLastVideoWatch(id);
+        setLastVideoWatch(cn_video[id].id);
         scrollTo(cn_video[id].id);
     };
 
@@ -31,8 +49,13 @@ export default function Home() {
             block: "start",
         });
 
-    const setLastVideoWatch = (index: number) => {
-        localStorage.setItem(LOCAL_STORAGE_KEY, index.toString());
+    const setLastVideoWatch = (videoId: string) => {
+        let data = getLastVideos() || [
+            { id: cn_video[0].id, date: new Date() },
+        ];
+        data = [...data, { id: videoId, date: new Date() }];
+        localStorage.setItem(WATCH_VIDEOS_LS, JSON.stringify(data));
+        setWatchVideos(data);
     };
 
     const getVideoID = () => {
@@ -43,12 +66,6 @@ export default function Home() {
     const onEnd: YouTubeProps["onEnd"] = (event) => {
         setCurrentVideo(videoIndex + 1);
     };
-
-    useEffect(() => {
-        let data = localStorage.getItem(LOCAL_STORAGE_KEY);
-        setVideoIndex(parseInt(data || "0"));
-        scrollTo(cn_video[videoIndex].id);
-    }, [refs]);
 
     useEffect(() => {
         if (window && window.innerHeight) {
@@ -97,10 +114,18 @@ export default function Home() {
                     }}
                 >
                     {cn_video.map((v, i) => {
+                        const videoId = cn_video[i].id;
+                        const videoWasWatched =
+                            watchVideos.find((v) => v.id === videoId) !=
+                            undefined;
                         return (
                             <div
                                 className={`flex flex-row h-15 items-center gap-3 border-b cursor-pointer ${
-                                    i === videoIndex ? "bg-blue-200" : ""
+                                    i === videoIndex
+                                        ? "bg-blue-300"
+                                        : videoWasWatched
+                                        ? "bg-blue-100"
+                                        : ""
                                 }`}
                                 ref={refs[v.id]}
                                 onClick={() => setCurrentVideo(i)}

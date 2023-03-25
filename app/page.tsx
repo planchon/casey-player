@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 const LOCAL_STORAGE_KEY = "lastVideoWatch";
 
 export default function Home() {
-    const [videoIndex, setVideoIndex] = useState(50);
+    const [videoIndex, setVideoIndex] = useState(0);
     const videoContainerRef = useRef(null);
     const refs = cn_video.reduce((acc, value) => {
         acc[value.id] = createRef();
@@ -46,7 +46,7 @@ export default function Home() {
 
     useEffect(() => {
         let data = localStorage.getItem(LOCAL_STORAGE_KEY);
-        setVideoIndex(parseInt(data || "100"));
+        setVideoIndex(parseInt(data || "0"));
         scrollTo(cn_video[videoIndex].id);
     }, [refs]);
 

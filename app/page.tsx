@@ -11,6 +11,7 @@ const WATCH_VIDEOS_LS = "watchVideos";
 
 export default function Home() {
     const getLastVideos = () => {
+        if (!localStorage) return [];
         return JSON.parse(localStorage.getItem(WATCH_VIDEOS_LS));
     };
 

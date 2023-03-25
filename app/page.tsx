@@ -16,6 +16,7 @@ export default function Home() {
         acc[value.id] = createRef();
         return acc;
     }, {});
+    const [width, setWidth] = useState(600);
 
     const setCurrentVideo = (id) => {
         console.log(id);
@@ -49,6 +50,12 @@ export default function Home() {
         scrollTo(cn_video[videoIndex].id);
     }, [refs]);
 
+    useEffect(() => {
+        if (window && window.innerHeight) {
+            setWidth(window.innerHeight);
+        }
+    }, []);
+
     return (
         <div className="flex flex-row">
             <div ref={videoContainerRef} className="basis-3/4">
@@ -56,7 +63,7 @@ export default function Home() {
                     <YouTube
                         videoId={getVideoID()}
                         opts={{
-                            height: window.innerHeight,
+                            height: width,
                             width: "100%",
                             playerVars: {
                                 autoplay: 1,

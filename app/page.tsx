@@ -98,7 +98,7 @@ export default function Home() {
                     />
                 )}
             </div>
-            <div className="flex flex-col basis-4/5 w-full">
+            <div className="flex flex-col basis-1/5 w-full">
                 <div className="w-full">
                     <div className="flex items-center justify-center py-2 font-bold border-b">
                         CN Binge Watcher Tool

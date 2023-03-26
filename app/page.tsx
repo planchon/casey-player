@@ -83,7 +83,7 @@ export default function Home() {
 
     return (
         <div className="flex flex-row">
-            <div ref={videoContainerRef} className="basis-3/4">
+            <div ref={videoContainerRef} className="basis-4/5">
                 {videoContainerRef && (
                     <YouTube
                         videoId={getVideoID()}
@@ -98,10 +98,10 @@ export default function Home() {
                     />
                 )}
             </div>
-            <div className="flex flex-col basis-1/4 w-full">
+            <div className="flex flex-col basis-4/5 w-full">
                 <div className="w-full">
                     <div className="flex items-center justify-center py-2 font-bold border-b">
-                        Casey Neight Watcher
+                        CN Binge Watcher Tool
                     </div>
                     <div className="border-b">
                         <div
